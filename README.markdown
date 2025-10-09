@@ -1,6 +1,6 @@
-# Durga Furniture
+# Durga Handicrafts
 
-Durga Furniture is a web-based furniture store application built with a **FastAPI** backend and a **React** frontend. It supports product management, user authentication via Google OAuth, and order processing. The application uses MongoDB for data storage, Cloudinary for image uploads, and Tailwind CSS for a dark-themed, responsive UI. The admin account is restricted to `pratyushojha77@gmail.com`.
+Durga Handicrafts is a web-based furniture store application built with a **FastAPI** backend and a **React** frontend. It supports product management, user authentication via Google OAuth, and order processing. The application uses MongoDB for data storage, Cloudinary for image uploads, and Tailwind CSS for a dark-themed, responsive UI. The admin account is restricted to `pratyushojha77@gmail.com`.
 
 ## Features
 - **Product Management**: Admins can add, delete, and view products with images stored on Cloudinary.

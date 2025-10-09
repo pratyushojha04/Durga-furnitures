@@ -17,6 +17,7 @@ def save_order_to_excel(order: dict):
     order_data = {
         "order_id": [str(order['_id'])],
         "user_email": [order['user_email']],
+        "phone_number": [order.get('phone_number', 'N/A')],
         "product_id": [str(order['product_id'])],  # Ensure product_id is a string
         "quantity": [order['quantity']],
         "total_price": [order.get('total_price', 0)],  # Add total_price

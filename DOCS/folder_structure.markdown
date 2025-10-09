@@ -1,6 +1,6 @@
-# Durga Furniture Project Folder Structure
+# Durga Handicrafts Project Folder Structure
 
-This document outlines the complete folder structure for the **Durga Furniture** project, including both the backend (FastAPI, MongoDB, Cloudinary) and frontend (React, Tailwind CSS, Google OAuth). It also details the styling configuration, including colors, fonts, and other visual elements used in the frontend. The structure supports product management, user authentication, and order processing, with a single admin (`pratyushojha77@gmail.com`) and a hero image (`krishna.png`).
+This document outlines the complete folder structure for the **Durga Handicrafts** project, including both the backend (FastAPI, MongoDB, Cloudinary) and frontend (React, Tailwind CSS, Google OAuth). It also details the styling configuration, including colors, fonts, and other visual elements used in the frontend. The structure supports product management, user authentication, and order processing, with a single admin (`pratyushojha77@gmail.com`) and a hero image (`krishna.png`).
 
 ## Project Root
 ```

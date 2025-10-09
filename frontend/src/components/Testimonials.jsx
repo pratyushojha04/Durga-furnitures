@@ -6,7 +6,7 @@ function Testimonials() {
     },
     {
       name: 'Amit R.',
-      text: 'Amazing quality and fast delivery. Durga Furniture exceeded my expectations.',
+      text: 'Amazing quality and fast delivery. Durga Handicrafts exceeded my expectations.',
     },
   ];
 

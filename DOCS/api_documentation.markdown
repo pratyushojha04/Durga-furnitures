@@ -1,6 +1,6 @@
-# Durga Furniture API Documentation
+# Durga Handicrafts API Documentation
 
-This document outlines the API endpoints for the **Durga Furniture** application, a web-based furniture store built with FastAPI, MongoDB, and Cloudinary for image storage. The API supports product management, user authentication via Google OAuth, and order processing. All endpoints are prefixed with `/api`.
+This document outlines the API endpoints for the **Durga Handicrafts** application, a web-based furniture store built with FastAPI, MongoDB, and Cloudinary for image storage. The API supports product management, user authentication via Google OAuth, and order processing. All endpoints are prefixed with `/api`.
 
 ## Base URL
 ```

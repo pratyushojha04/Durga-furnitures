@@ -1,25 +1,4 @@
 // import { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import api from '../services/api';
-// import { useCart } from '../context/CartContext';
-// import NavAuthenticated from '../components/NavAuthenticated';
-
-// function Dashboard() {
-//   const [products, setProducts] = useState([]);
-//   const [error, setError] = useState('');
-//   const { addToCart } = useCart();
-//   const navigate = useNavigate();
-//   const baseUrl = 'http://localhost:8000';
-
-//   useEffect(() => {
-//     api
-//       .get('/products')
-//       .then(res => setProducts(res.data))
-//       .catch(err => {
-//         console.error('Products fetch error:', err);
-//         setError('Failed to load products. Please try again.');
-//         setTimeout(() => setError(''), 3000);
-//       });
 //   }, []);
 
 //   const handleAddToCart = (product) => {
@@ -86,14 +65,21 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import NavAuthenticated from '../components/NavAuthenticated';
+import PhoneNumberModal from '../components/PhoneNumberModal';
 
 function Dashboard() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && !user.phone_number) {
+      setShowPhoneModal(true);
+    }
+
     api
       .get('/products')
       .then(res => {
@@ -115,8 +101,9 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-dark-bg text-text-light px-4 py-6 font-sans">
       <NavAuthenticated />
+      {showPhoneModal && <PhoneNumberModal onSuccess={() => setShowPhoneModal(false)} />}
       <div className="max-w-screen-xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">Our Furniture</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">Our Handicrafts</h2>
         {error && (
           <div className="bg-red-600 text-white p-4 rounded-lg mb-6 text-center text-sm sm:text-base">
             {error}
@@ -149,7 +136,7 @@ function Dashboard() {
                 />
                 <h3 className="text-lg font-semibold text-text-light">{product.name}</h3>
                 <p className="text-gray-400 text-sm">{product.category}</p>
-                <p className="text-text-light font-semibold mt-2">₹{product.price.toFixed(2).replace('$', '₹')}</p>
+                <p className="text-text-light font-semibold mt-2">₹{product.price.toFixed(2)}</p>
                 <button
                   onClick={() => handleAddToCart(product)}
                   className="mt-4 w-full bg-wood-accent text-dark-bg py-2 rounded-lg hover:bg-opacity-80 transition"

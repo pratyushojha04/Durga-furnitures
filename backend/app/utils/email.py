@@ -1,12 +1,11 @@
 import smtplib
 from email.mime.text import MIMEText
-from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def send_order_email(order_details: str):
+def send_order_email(user_email: str, phone_number: str, order_details: str):
     """Send an order confirmation email to the company email."""
     company_email = os.getenv("EMAIL_USER")
     email_password = os.getenv("EMAIL_PASSWORD")
@@ -15,8 +14,9 @@ def send_order_email(order_details: str):
         raise HTTPException(status_code=500, detail="Email configuration missing")
 
     # Email content
-    msg = MIMEText(order_details)
-    msg["Subject"] = "New Order Notification - Durga Furniture"
+    email_body = f"New Order by: {user_email}\nPhone: {phone_number}\n\nOrder Details:\n{order_details}"
+    msg = MIMEText(email_body)
+    msg["Subject"] = "New Order Notification - Durga Handicrafts"
     msg["From"] = company_email
     msg["To"] = "opratyush12@gmail.com"  # Hardcoded admin email
 
@@ -32,16 +32,16 @@ def send_order_email(order_details: str):
 def send_processed_order_email(user_email: str, order_details: dict):
     """Send an email to the user notifying them that their order has been processed."""
     company_email = os.getenv("EMAIL_USER")
-    email_password = os.getenv("EMAIL_PASSWORD")
 
     if not company_email or not email_password:
         raise HTTPException(status_code=500, detail="Email configuration missing")
 
     # Email content
-    email_body = f"Dear Customer,\n\nYour order has been processed and is on its way!\n\nOrder Details:\n- Order ID: {order_details['_id']}\n- Product ID: {order_details['product_id']}\n- Quantity: {order_details['quantity']}\n\nThank you for shopping with Durga Furnitures!"
+    phone_number_info = f"\n- Phone: {order_details['phone_number']}" if 'phone_number' in order_details else ""
+    email_body = f"Dear Customer,\n\nYour order has been processed and is on its way!\n\nOrder Details:\n- Order ID: {order_details['_id']}\n- Product ID: {order_details['product_id']}\n- Quantity: {order_details['quantity']}{phone_number_info}\n\nThank you for shopping with Durga Handicrafts!"
     
     msg = MIMEText(email_body)
-    msg["Subject"] = f"Your Durga Furnitures Order #{order_details['_id']} Has Been Processed"
+    msg["Subject"] = f"Your Durga Handicrafts Order #{order_details['_id']} Has Been Processed"
     msg["From"] = company_email
     msg["To"] = user_email
 

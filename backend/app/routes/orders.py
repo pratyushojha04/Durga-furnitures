@@ -20,7 +20,12 @@ class OrderRequest(BaseModel):
 
 @router.post("/orders")
 async def create_order(order: OrderRequest, user: dict = Depends(get_current_user)):
-    user_email = user["email"]
+    user_data = await db.users.find_one({"email": user["email"]})
+    if not user_data or not user_data.get("phone_number"):
+        raise HTTPException(status_code=400, detail="Phone number is required before placing an order.")
+
+    user_email = user_data["email"]
+    phone_number = user_data["phone_number"]
     order_details = []
     for item in order.items:
         # Convert string product_id to ObjectId for MongoDB query
@@ -39,6 +44,7 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         order_data = {
             "product_id": product_oid,  # Store as ObjectId
             "user_email": user_email,
+            "phone_number": phone_number,
             "quantity": item.quantity,
             "status": "purchased"
         }
@@ -54,8 +60,8 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         order_details.append(f"Product: {product['name']}, Quantity: {item.quantity}, Price: {product['price']}")
     
     # Send email
-    email_body = f"New Order by {user_email}:\n" + "\n".join(order_details)
-    send_order_email(email_body)
+    email_body = "\n".join(order_details)
+    send_order_email(user_email, phone_number, email_body)
     
     return {"status": "ordered"}
 
@@ -67,6 +73,8 @@ async def get_orders(user: dict = Depends(get_admin_user)):
     for order in orders:
         order['_id'] = str(order['_id'])
         order['product_id'] = str(order['product_id'])
+        if 'phone_number' in order:
+            order['phone_number'] = str(order['phone_number'])
         orders_serializable.append(order)
     return orders_serializable
 

@@ -1,6 +1,6 @@
-# Durga Furniture Schema Design Documentation
+# Durga Handicrafts Schema Design Documentation
 
-This document outlines the MongoDB schema design for the **Durga Furniture** project, a web-based furniture store built with FastAPI, MongoDB, Cloudinary, and React. The schema supports product management, user authentication via Google OAuth, and order processing, with a single admin (`pratyushojha77@gmail.com`). The database is named `durga_furniture` and contains collections for products, users, and orders, designed to ensure data integrity, scalability, and alignment with the application's requirements.
+This document outlines the MongoDB schema design for the **Durga Handicrafts** project, a web-based furniture store built with FastAPI, MongoDB, Cloudinary, and React. The schema supports product management, user authentication via Google OAuth, and order processing, with a single admin (`pratyushojha77@gmail.com`). The database is named `durga_furniture` and contains collections for products, users, and orders, designed to ensure data integrity, scalability, and alignment with the application's requirements.
 
 ## Database Overview
 - **Database Name**: `durga_furniture`

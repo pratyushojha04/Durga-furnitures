@@ -270,6 +270,7 @@ function Admin() {
                 <div key={order._id} className="p-4 bg-gray-800 rounded-lg border border-wood-accent">
                   <p className="text-sm font-semibold">Order ID: {order._id}</p>
                   <p className="text-sm">Customer Email: {order.user_email}</p>
+                  {order.phone_number && <p className="text-sm">Phone: {order.phone_number}</p>}
                   <p className="text-sm">Product ID: {order.product_id}</p>
                   <p className="text-sm">Quantity: {order.quantity}</p>
                   <p className="text-sm">Status: <span className="capitalize">{order.status}</span></p>

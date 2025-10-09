@@ -52,7 +52,7 @@ function Home() {
             Crafted with Tradition
           </h2>
           <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
-            At Durga Furniture, we specialize in handcrafted wooden temple almirahs and furniture,
+            At Durga Handicrafts, we specialize in handcrafted wooden temple almirahs and furniture,
             blending tradition with modern elegance. Each piece is meticulously crafted to bring
             warmth, serenity, and beauty to your home.
           </p>
@@ -152,7 +152,7 @@ export default Home;
 //               Crafted with Tradition
 //             </h2>
 //             <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
-//               At Durga Furniture, we specialize in handcrafted wooden temple almirahs and furniture,
+//               At Durga Handicrafts, we specialize in handcrafted wooden temple almirahs and furniture,
 //               blending tradition with modern elegance. Each piece is meticulously crafted to bring
 //               warmth, serenity, and beauty to your home.
 //             </p>
