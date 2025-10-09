@@ -41,6 +41,9 @@ function NavAuthenticated() {
           >
             Home
           </button>
+          <Link to="/about" className="hover:text-wood-accent transition-colors duration-200 text-sm sm:text-base">
+            About
+          </Link>
           <button
             onClick={() => navigate('/cart')}
             className="relative hover:text-wood-accent transition-colors duration-200 text-sm sm:text-base"
@@ -74,6 +77,9 @@ function NavAuthenticated() {
           >
             Home
           </button>
+          <Link to="/about" onClick={() => setIsOpen(false)} className="hover:text-wood-accent transition-colors duration-200">
+            About
+          </Link>
           <button
             onClick={() => {
               navigate('/cart');

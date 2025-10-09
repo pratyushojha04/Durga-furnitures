@@ -37,13 +37,13 @@ function Cart() {
                   />
                   <div>
                     <h3 className="text-base sm:text-lg font-semibold text-text-light">{item.name}</h3>
-                    <p className="text-sm text-gray-400">Price: ${item.price.toFixed(2)}</p>
+                    <p className="text-sm text-gray-400">Price: ₹{item.price.toFixed(2)}</p>
                     <p className="text-sm text-gray-400">Quantity: {item.quantity}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <p className="text-sm sm:text-base font-semibold text-text-light">
-                    Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                    Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
                   </p>
                   <button
                     onClick={() => removeFromCart(item.product_id)}
@@ -55,7 +55,7 @@ function Cart() {
               </div>
             ))}
             <p className="text-base sm:text-lg font-semibold text-right text-text-light">
-              Total: ${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+              Total: ₹{cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
             </p>
             <div className="flex justify-end gap-4 mt-4">
               <button

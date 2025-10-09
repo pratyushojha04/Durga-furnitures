@@ -19,14 +19,8 @@ function Login() {
       } catch(err){
         console.error('Error in storing user cookies:', err);
       }
-      try {
-        // Additional logic if needed
-        navigate('/dashboard');
-      } catch (err) {
-        console.error('Error in redirecting process:', err);
-      }
-       // Redirect to dashboard
-      console.log('Login successful:', data.user);
+      navigate('/dashboard');
+      window.location.reload(); // Force a refresh to ensure state is updated
     } catch (err) {
       setError('Login failed. Please try again.');
     }
@@ -39,7 +33,7 @@ function Login() {
       <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
         <div className="bg-gray-900 p-8 rounded-lg shadow-md border border-wood-accent max-w-md w-full">
           <h2 className="text-2xl font-bold text-text-light mb-6 text-center">
-            Login to Durga Furniture
+            Login to Durga Handicrafts
           </h2>
           {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
           <div className="flex justify-center">

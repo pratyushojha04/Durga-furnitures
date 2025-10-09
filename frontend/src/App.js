@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
 import Cart from './pages/Cart';
+import About from './pages/About';
 import Login from './components/Login';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route
               path="/dashboard"
               element={isAuthenticated() ? <Dashboard /> : <Navigate to="/login" />}

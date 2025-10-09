@@ -125,6 +125,28 @@ function Admin() {
     }
   };
 
+  const handleDownloadReport = async (filename) => {
+    try {
+      const response = await api.get(`/orders/reports/${filename}`, {
+        responseType: 'blob', // Important for file downloads
+      });
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      // Clean up
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download error:', err);
+      setError('Failed to download report.');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-dark-bg text-text-light px-4 py-6 font-sans">
       <NavAuthenticated />
@@ -226,7 +248,7 @@ function Admin() {
               />
               <h4 className="text-lg font-semibold text-text-light">{product.name}</h4>
               <p className="text-gray-400 text-sm">{product.category}</p>
-              <p className="text-text-light font-semibold mt-2">${product.price ? product.price.toFixed(2) : 'N/A'}</p>
+              <p className="text-text-light font-semibold mt-2">₹{product.price ? product.price.toFixed(2) : 'N/A'}</p>
               <p className="text-gray-400 text-sm">Stock: {product.stock}</p>
               <button
                 onClick={() => handleRemoveProduct(product._id)}
@@ -270,14 +292,13 @@ function Admin() {
           ) : (
             <div className="space-y-2">
               {reports.map(report => (
-                <a
+                <button
                   key={report}
-                  href={`${api.defaults.baseURL}/orders/reports/${report}`}
-                  className="block text-blue-400 hover:underline"
-                  download
+                  onClick={() => handleDownloadReport(report)}
+                  className="block text-blue-400 hover:underline text-left"
                 >
                   {report}
-                </a>
+                </button>
               ))}
             </div>
           )}

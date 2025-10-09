@@ -222,17 +222,17 @@ function Checkout() {
                     />
                     <div>
                       <h4 className="text-base sm:text-md font-semibold text-text-light">{item.name}</h4>
-                      <p className="text-sm text-gray-400">Price: ${item.price.toFixed(2)}</p>
+                      <p className="text-sm text-gray-400">Price: ₹{item.price.toFixed(2)}</p>
                       <p className="text-sm text-gray-400">Quantity: {item.quantity}</p>
                     </div>
                   </div>
                   <p className="text-sm sm:text-base font-semibold text-text-light">
-                    Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                    Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
               ))}
               <p className="text-base sm:text-lg font-semibold text-right text-text-light">
-                Total: ${cartData.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                Total: ₹{cartData.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
               </p>
               <button
                 onClick={handlePlaceOrder}

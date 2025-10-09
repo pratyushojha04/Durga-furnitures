@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
-REPORTS_DIR = "reports"
+REPORTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'reports'))
 
 if not os.path.exists(REPORTS_DIR):
     os.makedirs(REPORTS_DIR)
@@ -17,8 +17,9 @@ def save_order_to_excel(order: dict):
     order_data = {
         "order_id": [str(order['_id'])],
         "user_email": [order['user_email']],
-        "product_id": [order['product_id']],
+        "product_id": [str(order['product_id'])],  # Ensure product_id is a string
         "quantity": [order['quantity']],
+        "total_price": [order.get('total_price', 0)],  # Add total_price
         "status": [order['status']],
         "processed_at": [now.strftime("%Y-%m-%d %H:%M:%S")]
     }

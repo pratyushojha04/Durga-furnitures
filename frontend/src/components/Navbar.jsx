@@ -15,6 +15,9 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-8 text-base font-medium">
           
+          <Link to="/about" className="hover:text-wood-accent transition-colors duration-200">
+            About
+          </Link>
           <Link to="/login" className="hover:text-wood-accent transition-colors duration-200">
             Login
           </Link>
@@ -56,6 +59,12 @@ export default function Navbar() {
             className="block text-text-light hover:text-wood-accent transition-colors duration-200"
           >
             Shop
+          </Link>
+          <Link
+            to="/about"
+            className="block text-text-light hover:text-wood-accent transition-colors duration-200"
+          >
+            About
           </Link>
           <Link
             to="/login"

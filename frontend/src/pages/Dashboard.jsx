@@ -149,7 +149,7 @@ function Dashboard() {
                 />
                 <h3 className="text-lg font-semibold text-text-light">{product.name}</h3>
                 <p className="text-gray-400 text-sm">{product.category}</p>
-                <p className="text-text-light font-semibold mt-2">${product.price.toFixed(2)}</p>
+                <p className="text-text-light font-semibold mt-2">₹{product.price.toFixed(2).replace('$', '₹')}</p>
                 <button
                   onClick={() => handleAddToCart(product)}
                   className="mt-4 w-full bg-wood-accent text-dark-bg py-2 rounded-lg hover:bg-opacity-80 transition"

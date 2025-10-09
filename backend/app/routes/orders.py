@@ -37,7 +37,7 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         
         # Create order
         order_data = {
-            "product_id": item.product_id,
+            "product_id": product_oid,  # Store as ObjectId
             "user_email": user_email,
             "quantity": item.quantity,
             "status": "purchased"
@@ -63,9 +63,11 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
 async def get_orders(user: dict = Depends(get_admin_user)):
     orders = await db.orders.find().to_list(100)
     # Convert ObjectId to string for JSON serialization
-    orders_serializable = [
-        {**order, '_id': str(order['_id'])} for order in orders
-    ]
+    orders_serializable = []
+    for order in orders:
+        order['_id'] = str(order['_id'])
+        order['product_id'] = str(order['product_id'])
+        orders_serializable.append(order)
     return orders_serializable
 
 @router.post("/orders/{order_id}/process")
@@ -79,6 +81,11 @@ async def process_order(order_id: str, user: dict = Depends(get_admin_user)):
     order = await db.orders.find_one({"_id": object_id})
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    # Fetch product details to calculate total_price
+    product = await db.products.find_one({"_id": ObjectId(order['product_id'])})
+    if product:
+        order['total_price'] = product.get('price', 0) * order.get('quantity', 0)
 
     try:
         print(f"Sending processed order email to {order['user_email']}...")
@@ -106,14 +113,15 @@ async def process_order(order_id: str, user: dict = Depends(get_admin_user)):
 
 @router.get("/orders/reports")
 async def list_reports(user: dict = Depends(get_admin_user)):
-    reports_dir = "reports"
+    reports_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'reports'))
     if not os.path.exists(reports_dir):
         return []
     return [f for f in os.listdir(reports_dir) if f.endswith('.xlsx')]
 
 @router.get("/orders/reports/{filename}")
 async def download_report(filename: str, user: dict = Depends(get_admin_user)):
-    file_path = os.path.join("reports", filename)
+    reports_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'reports'))
+    file_path = os.path.join(reports_dir, filename)
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Report not found")
     return FileResponse(file_path, media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', filename=filename)
