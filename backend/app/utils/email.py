@@ -32,6 +32,7 @@ def send_order_email(user_email: str, phone_number: str, order_details: str):
 def send_processed_order_email(user_email: str, order_details: dict):
     """Send an email to the user notifying them that their order has been processed."""
     company_email = os.getenv("EMAIL_USER")
+    email_password = os.getenv("EMAIL_PASSWORD")
 
     if not company_email or not email_password:
         raise HTTPException(status_code=500, detail="Email configuration missing")

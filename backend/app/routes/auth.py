@@ -26,19 +26,20 @@ async def google_login(google_token: GoogleToken):
         email = idinfo["email"]
         name = idinfo.get("name", email.split("@")[0])
 
-        # Set role based on email
-        role = "admin" if email == os.getenv("ADMIN_EMAIL") else "user"
+        # Set role based on email, stripping whitespace from env var
+        admin_email = os.getenv("ADMIN_EMAIL", "").strip()
+        role = "admin" if admin_email and email == admin_email else "user"
 
         user = await db.users.find_one({"email": email})
         if not user:
             user = {"email": email, "name": name, "role": role, "phone_number": None}
             await db.users.insert_one(user)
         else:
-            # Ensure phone_number exists
+            # Always update name and role on login
+            update_data = {"name": name, "role": role}
             if "phone_number" not in user:
-                await db.users.update_one({"email": email}, {"$set": {"name": name, "role": role, "phone_number": None}})
-            else:
-                await db.users.update_one({"email": email}, {"$set": {"name": name, "role": role}})
+                update_data["phone_number"] = None
+            await db.users.update_one({"email": email}, {"$set": update_data})
 
         # Refetch user to get the latest data
         user = await db.users.find_one({"email": email})

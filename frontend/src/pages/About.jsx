@@ -24,10 +24,10 @@ function About() {
         <div className="flex flex-col items-center">
             <img
               src="/DurganandImage.jpeg"
-              alt="Owner - Durganand"
+              alt="Owner - Durganand Panday"
               className="rounded-full object-cover w-64 h-64 border-4 border-wood-accent shadow-lg"
             />
-            <h3 className="text-2xl font-semibold mt-4">Durganand</h3>
+            <h3 className="text-2xl font-semibold mt-4">Durganand Panday</h3>
             <p className="text-text-light text-lg">Owner, Durga Handicrafts</p>
           </div>
         </div>

@@ -1,10 +1,10 @@
 # Durga Handicrafts
 
-Durga Handicrafts is a web-based furniture store application built with a **FastAPI** backend and a **React** frontend. It supports product management, user authentication via Google OAuth, and order processing. The application uses MongoDB for data storage, Cloudinary for image uploads, and Tailwind CSS for a dark-themed, responsive UI. The admin account is restricted to `pratyushojha77@gmail.com`.
+Durga Handicrafts is a web-based furniture store application built with a **FastAPI** backend and a **React** frontend. It supports product management, user authentication via Google OAuth, and order processing. The application uses MongoDB for data storage, Cloudinary for image uploads, and Tailwind CSS for a dark-themed, responsive UI. The admin account is restricted to `durgafurniture2412@gmail.com`.
 
 ## Features
 - **Product Management**: Admins can add, delete, and view products with images stored on Cloudinary.
-- **Authentication**: Google OAuth login, with admin access limited to `pratyushojha77@gmail.com`.
+- **Authentication**: Google OAuth login, with admin access limited to `durgafurniture2412@gmail.com`.
 - **Order Processing**: Users can browse products, add to cart, and place orders, with stock validation.
 - **Responsive UI**: Dark theme with wooden accents, using Tailwind CSS and Inter font.
 - **Image Handling**: Product images stored on Cloudinary, with a fallback image (`fallback-image.jpg`) for errors.
@@ -115,7 +115,7 @@ cd Durga-furnitures
    Create a `.env` file in `backend/`:
    ```env
    GOOGLE_CLIENT_ID=964672372285-oc9398cg2s1v42o7qnnimh2t63s0vodg.apps.googleusercontent.com
-   ADMIN_EMAIL=pratyushojha77@gmail.com
+   ADMIN_EMAIL=durgafurniture2412@gmail.com
    JWT_SECRET_KEY=your-secret-key
    MONGO_URI=mongodb://localhost:27017/durga_furniture
    CLOUDINARY_CLOUD_NAME=your-cloud-name
@@ -196,7 +196,7 @@ cd Durga-furnitures
       "_id": ObjectId,
       "email": String,          // Unique
       "name": String,
-      "is_admin": Boolean       // True for pratyushojha77@gmail.com
+      "is_admin": Boolean       // True for durgafurniture2412@gmail.com
     }
     ```
   - **orders**:
@@ -249,7 +249,7 @@ See `docs/api_documentation.md` for detailed API documentation.
    ```
 2. **Frontend**:
    - Visit `http://localhost:3000`.
-   - Log in with `pratyushojha77@gmail.com`.
+   - Log in with `durgafurniture2412@gmail.com`.
    - Test adding products in `/admin`, browsing in `/dashboard`, and placing orders in `/cart` and `/checkout`.
 3. **MongoDB**:
    ```bash
@@ -265,7 +265,7 @@ See `docs/api_documentation.md` for detailed API documentation.
   - Verify `image_url` in `db.products` (e.g., `https://res.cloudinary.com/...`).
 - **Authentication Errors**:
   - Validate `GOOGLE_CLIENT_ID` and `JWT_SECRET_KEY`.
-  - Ensure `pratyushojha77@gmail.com` is used for admin actions.
+  - Ensure `durgafurniture2412@gmail.com` is used for admin actions.
 - **Performance**:
   - Use `loading="lazy"` for images.
   - Test production build: `npm run build && serve -s build`.

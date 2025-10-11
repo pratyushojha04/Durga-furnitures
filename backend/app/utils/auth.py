@@ -24,7 +24,8 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 async def get_admin_user(user: dict = Depends(get_current_user)):
-    if user.get("email") != os.getenv("ADMIN_EMAIL") or user.get("role") != "admin":
+    admin_email = os.getenv("ADMIN_EMAIL", "").strip()
+    if not admin_email or user.get("email") != admin_email:
         raise HTTPException(
             status_code=403,
             detail=f"Only admin can perform this action"

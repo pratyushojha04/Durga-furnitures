@@ -1,6 +1,6 @@
 # Durga Handicrafts Project Folder Structure
 
-This document outlines the complete folder structure for the **Durga Handicrafts** project, including both the backend (FastAPI, MongoDB, Cloudinary) and frontend (React, Tailwind CSS, Google OAuth). It also details the styling configuration, including colors, fonts, and other visual elements used in the frontend. The structure supports product management, user authentication, and order processing, with a single admin (`pratyushojha77@gmail.com`) and a hero image (`krishna.png`).
+This document outlines the complete folder structure for the **Durga Handicrafts** project, including both the backend (FastAPI, MongoDB, Cloudinary) and frontend (React, Tailwind CSS, Google OAuth). It also details the styling configuration, including colors, fonts, and other visual elements used in the frontend. The structure supports product management, user authentication, and order processing, with a single admin (`durgafurniture2412@gmail.com`) and a hero image (`krishna.png`).
 
 ## Project Root
 ```
@@ -88,7 +88,7 @@ backend/
 - **.env**: Environment variables:
   ```env
   GOOGLE_CLIENT_ID=964672372285-oc9398cg2s1v42o7qnnimh2t63s0vodg.apps.googleusercontent.com
-  ADMIN_EMAIL=pratyushojha77@gmail.com
+  ADMIN_EMAIL=durgafurniture2412@gmail.com
   JWT_SECRET_KEY=your-secret-key
   MONGO_URI=mongodb://localhost:27017/durga_furniture
   CLOUDINARY_CLOUD_NAME=your-cloud-name
@@ -167,7 +167,7 @@ frontend/
 - **src/components/NavAuthenticated.jsx**: Navigation for authenticated users (in `components/` as requested).
 - **src/components/Testimonials.jsx**: Customer testimonials on the home page.
 - **src/context/CartContext.jsx**: Manages cart state using React Context.
-- **src/pages/Admin.jsx**: Admin panel for product management (restricted to `pratyushojha77@gmail.com`).
+- **src/pages/Admin.jsx**: Admin panel for product management (restricted to `durgafurniture2412@gmail.com`).
 - **src/pages/Cart.jsx**: Displays cart items with images and checkout button.
 - **src/pages/Checkout.jsx**: Handles order placement with order summary.
 - **src/pages/Dashboard.jsx**: Lists all products with images and add-to-cart buttons.
@@ -231,7 +231,7 @@ frontend/
 - **Backend**:
   - Runs on `http://localhost:8000`.
   - Requires MongoDB (`mongodb://localhost:27017/durga_furniture`) and Cloudinary credentials.
-  - Admin endpoints (`/products` POST, DELETE) restricted to `pratyushojha77@gmail.com`.
+  - Admin endpoints (`/products` POST, DELETE) restricted to `durgafurniture2412@gmail.com`.
   - Images stored in Cloudinary’s `durga_furniture` folder with a default image (`default.jpg`).
 
 - **Frontend**:

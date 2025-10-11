@@ -1,6 +1,6 @@
 # Durga Handicrafts Schema Design Documentation
 
-This document outlines the MongoDB schema design for the **Durga Handicrafts** project, a web-based furniture store built with FastAPI, MongoDB, Cloudinary, and React. The schema supports product management, user authentication via Google OAuth, and order processing, with a single admin (`pratyushojha77@gmail.com`). The database is named `durga_furniture` and contains collections for products, users, and orders, designed to ensure data integrity, scalability, and alignment with the application's requirements.
+This document outlines the MongoDB schema design for the **Durga Handicrafts** project, a web-based furniture store built with FastAPI, MongoDB, Cloudinary, and React. The schema supports product management, user authentication via Google OAuth, and order processing, with a single admin (`durgafurniture2412@gmail.com`). The database is named `durga_furniture` and contains collections for products, users, and orders, designed to ensure data integrity, scalability, and alignment with the application's requirements.
 
 ## Database Overview
 - **Database Name**: `durga_furniture`
@@ -69,23 +69,23 @@ Stores user information for authentication and authorization.
   ```json
   {
     "_id": ObjectId,              // Unique identifier (MongoDB-generated)
-    "email": String,             // User email (unique, e.g., pratyushojha77@gmail.com)
+    "email": String,             // User email (unique, e.g., durgafurniture2412@gmail.com)
     "name": String,              // User name (from Google OAuth)
-    "is_admin": Boolean          // True if admin (only for pratyushojha77@gmail.com)
+    "is_admin": Boolean          // True if admin (only for durgafurniture2412@gmail.com)
   }
   ```
 - **Constraints**:
   - `_id`: Auto-generated, unique.
   - `email`: Required, unique, validated as a valid email address.
   - `name`: Required, sourced from Google OAuth profile.
-  - `is_admin`: Defaults to `false`, set to `true` only for `pratyushojha77@gmail.com`.
+  - `is_admin`: Defaults to `false`, set to `true` only for `durgafurniture2412@gmail.com`.
 - **Indexes**:
   - `db.users.createIndex({"email": 1}, {unique: true})`: Ensures unique emails and fast lookup.
 - **Example Document**:
   ```json
   {
     "_id": "68e502a3460aa9b0aaf15d13",
-    "email": "pratyushojha77@gmail.com",
+    "email": "durgafurniture2412@gmail.com",
     "name": "Pratyush Ojha",
     "is_admin": true
   }
@@ -164,7 +164,7 @@ Stores order details, including items purchased and user information.
 - **Backend Logic**:
   - `routes/products.py`: Validates image uploads (JPEG/PNG, max 5MB) and Cloudinary URLs.
   - `routes/orders.py`: Checks `products.stock` before order creation.
-  - `utils/auth.py`: Ensures only `pratyushojha77@gmail.com` can access admin endpoints.
+  - `utils/auth.py`: Ensures only `durgafurniture2412@gmail.com` can access admin endpoints.
 
 ## Cloudinary Integration
 - **Image Storage**: Product images are stored in Cloudinary’s `durga_furniture` folder.
@@ -212,7 +212,7 @@ Stores order details, including items purchased and user information.
 3. **Insert Sample User**:
    ```javascript
    db.users.insertOne({
-     email: "pratyushojha77@gmail.com",
+     email: "durgafurniture2412@gmail.com",
      name: "Pratyush Ojha",
      is_admin: true
    });
@@ -247,7 +247,7 @@ Stores order details, including items purchased and user information.
 - **Testing**:
   - Verify schema with `db.products.find()`, `db.users.find()`, `db.orders.find()`.
   - Test `/api/products` POST with an image to ensure Cloudinary URL storage.
-  - Check admin restrictions for `pratyushojha77@gmail.com`.
+  - Check admin restrictions for `durgafurniture2412@gmail.com`.
 - **Setup**:
   - Backend:
     ```bash

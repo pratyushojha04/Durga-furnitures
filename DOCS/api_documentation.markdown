@@ -8,7 +8,7 @@ http://localhost:8000/api
 ```
 
 ## Authentication
-Most endpoints require authentication via a JWT token obtained through Google OAuth. The token must be included in the `Authorization` header as `Bearer <token>` for protected routes (e.g., `/products` POST, DELETE). The admin user is restricted to `pratyushojha77@gmail.com`.
+Most endpoints require authentication via a JWT token obtained through Google OAuth. The token must be included in the `Authorization` header as `Bearer <token>` for protected routes (e.g., `/products` POST, DELETE). The admin user is restricted to `durgafurniture2412@gmail.com`.
 
 ## Endpoints
 
@@ -41,7 +41,7 @@ Authenticates a user via Google OAuth and returns a JWT token.
       "detail": "Invalid or expired token"
     }
     ```
-- **Description**: Verifies the Google OAuth token and returns a JWT token if the user is `pratyushojha77@gmail.com` (admin) or a registered user.
+- **Description**: Verifies the Google OAuth token and returns a JWT token if the user is `durgafurniture2412@gmail.com` (admin) or a registered user.
 - **Test Example**:
   ```bash
   curl -X POST http://localhost:8000/api/auth/login \
@@ -60,7 +60,7 @@ Retrieves the authenticated user's details.
   - **200 OK**:
     ```json
     {
-      "email": "pratyushojha77@gmail.com",
+      "email": "durgafurniture2412@gmail.com",
       "name": "Pratyush Ojha",
       "is_admin": true
     }
@@ -131,7 +131,7 @@ Creates a new product (admin only).
 - **Description**: Adds a product to the MongoDB `products` collection. Images are uploaded to Cloudinary, and `image_url` is stored as a Cloudinary URL (e.g., `https://res.cloudinary.com/your-cloud-name/...`). If no image is provided, a default Cloudinary URL is used.
 - **Test Notes**:
   - Ensure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are set in `backend/.env`.
-  - Only `pratyushojha77@gmail.com` can access this endpoint.
+  - Only `durgafurniture2412@gmail.com` can access this endpoint.
 
 #### 2.2 Delete Product
 Deletes a product by ID (admin only).
@@ -248,7 +248,7 @@ Creates a new order with cart items.
 ## Notes
 - **Cloudinary**: Images are stored in the `durga_furniture` folder on Cloudinary. Ensure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` are configured in `backend/.env`.
 - **MongoDB**: Uses the `durga_furniture` database with `products` and `orders` collections.
-- **Admin Access**: Only `pratyushojha77@gmail.com` can access `/products` POST and DELETE endpoints.
+- **Admin Access**: Only `durgafurniture2412@gmail.com` can access `/products` POST and DELETE endpoints.
 - **Testing**:
   - Use Postman or `curl` with a valid JWT token.
   - Obtain the Google OAuth token via the frontend (`http://localhost:3000/login`).
