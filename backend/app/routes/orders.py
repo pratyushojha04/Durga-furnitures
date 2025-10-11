@@ -65,6 +65,29 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
     
     return {"status": "ordered"}
 
+@router.get("/orders/my-orders")
+async def get_my_orders(user: dict = Depends(get_current_user)):
+    """Get orders for the current logged-in user"""
+    orders = await db.orders.find({"user_email": user["email"]}).to_list(100)
+    # Convert ObjectId to string and fetch product details
+    orders_with_products = []
+    for order in orders:
+        order['_id'] = str(order['_id'])
+        product_id = order['product_id']
+        order['product_id'] = str(product_id)
+        
+        # Fetch product details
+        product = await db.products.find_one({"_id": product_id})
+        if product:
+            order['product_name'] = product.get('name', 'Unknown')
+            order['product_price'] = product.get('price', 0)
+            order['product_image'] = product.get('image_url', '')
+        
+        if 'phone_number' in order:
+            order['phone_number'] = str(order['phone_number'])
+        orders_with_products.append(order)
+    return orders_with_products
+
 @router.get("/orders")
 async def get_orders(user: dict = Depends(get_admin_user)):
     orders = await db.orders.find().to_list(100)

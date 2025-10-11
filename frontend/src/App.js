@@ -7,6 +7,7 @@ import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
 import Cart from './pages/Cart';
 import About from './pages/About';
+import Profile from './pages/Profile';
 import Login from './components/Login';
 
 function App() {
@@ -34,6 +35,10 @@ function App() {
             <Route
               path="/checkout"
               element={isAuthenticated() ? <Checkout /> : <Navigate to="/login" />}
+            />
+            <Route
+              path="/profile"
+              element={isAuthenticated() ? <Profile /> : <Navigate to="/login" />}
             />
             <Route
               path="/admin"
