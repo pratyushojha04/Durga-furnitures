@@ -8,21 +8,35 @@ if not os.path.exists(REPORTS_DIR):
     os.makedirs(REPORTS_DIR)
 
 def save_order_to_excel(order: dict):
-    """Saves a processed order to a monthly Excel file."""
+    """Saves a processed order with comprehensive details to a monthly Excel file."""
     now = datetime.now()
     month_str = now.strftime("%Y-%m")
     file_path = os.path.join(REPORTS_DIR, f"orders_{month_str}.xlsx")
 
-    # Prepare the new order data
+    # Prepare the new order data with all detailed fields
     order_data = {
-        "order_id": [str(order['_id'])],
-        "user_email": [order['user_email']],
-        "phone_number": [order.get('phone_number', 'N/A')],
-        "product_id": [str(order['product_id'])],  # Ensure product_id is a string
-        "quantity": [order['quantity']],
-        "total_price": [order.get('total_price', 0)],  # Add total_price
-        "status": [order['status']],
-        "processed_at": [now.strftime("%Y-%m-%d %H:%M:%S")]
+        "Order ID": [str(order.get('_id', 'N/A'))],
+        "Processed At": [now.strftime("%Y-%m-%d %H:%M:%S")],
+        "Status": [order.get('status', 'N/A')],
+        
+        # Customer Information
+        "Customer Name": [order.get('user_name', 'N/A')],
+        "Customer Email": [order.get('user_email', 'N/A')],
+        "Phone Number": [order.get('phone_number', 'N/A')],
+        
+        # Product Information
+        "Product ID": [str(order.get('product_id', 'N/A'))],
+        "Product Name": [order.get('product_name', 'N/A')],
+        "Category": [order.get('product_category', 'N/A')],
+        "Price per Unit": [order.get('product_price', 0)],
+        "Quantity": [order.get('quantity', 0)],
+        "Item Total": [order.get('item_total', 0)],
+        
+        # Delivery Information
+        "Delivery Address": [order.get('delivery_address', 'N/A')],
+        "City": [order.get('city', 'N/A')],
+        "State": [order.get('state', 'N/A')],
+        "Pincode": [order.get('pincode', 'N/A')]
     }
     new_df = pd.DataFrame(order_data)
 
@@ -38,5 +52,15 @@ def save_order_to_excel(order: dict):
     else:
         updated_df = new_df
 
-    # Save the updated DataFrame to the Excel file
-    updated_df.to_excel(file_path, index=False)
+    # Save the updated DataFrame to the Excel file with auto-adjusted column widths
+    with pd.ExcelWriter(file_path, engine='openpyxl') as writer:
+        updated_df.to_excel(writer, index=False, sheet_name='Orders')
+        
+        # Auto-adjust column widths
+        worksheet = writer.sheets['Orders']
+        for idx, col in enumerate(updated_df.columns):
+            max_length = max(
+                updated_df[col].astype(str).apply(len).max(),
+                len(col)
+            ) + 2
+            worksheet.column_dimensions[chr(65 + idx)].width = min(max_length, 50)

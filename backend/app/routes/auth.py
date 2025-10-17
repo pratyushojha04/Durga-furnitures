@@ -65,6 +65,13 @@ async def google_login(google_token: GoogleToken):
 class PhoneUpdate(BaseModel):
     phone_number: str
 
+class ProfileUpdate(BaseModel):
+    phone_number: str
+    address: str = None
+    city: str = None
+    state: str = None
+    pincode: str = None
+
 @router.post("/user/phone")
 async def update_phone_number(phone_update: PhoneUpdate, user: dict = Depends(get_current_user)):
     await db.users.update_one(
@@ -72,6 +79,59 @@ async def update_phone_number(phone_update: PhoneUpdate, user: dict = Depends(ge
         {"$set": {"phone_number": phone_update.phone_number}}
     )
     return {"message": "Phone number updated successfully"}
+
+@router.put("/user/profile")
+async def update_profile(profile_update: ProfileUpdate, user: dict = Depends(get_current_user)):
+    """Update user profile with address and contact information"""
+    update_data = {
+        "phone_number": profile_update.phone_number,
+        "address": profile_update.address,
+        "city": profile_update.city,
+        "state": profile_update.state,
+        "pincode": profile_update.pincode
+    }
+    
+    await db.users.update_one(
+        {"email": user["email"]},
+        {"$set": update_data}
+    )
+    
+    # Fetch updated user data
+    updated_user = await db.users.find_one({"email": user["email"]})
+    
+    # Return updated user data (excluding _id)
+    return {
+        "message": "Profile updated successfully",
+        "user": {
+            "email": updated_user["email"],
+            "name": updated_user["name"],
+            "role": updated_user["role"],
+            "phone_number": updated_user.get("phone_number"),
+            "address": updated_user.get("address"),
+            "city": updated_user.get("city"),
+            "state": updated_user.get("state"),
+            "pincode": updated_user.get("pincode")
+        }
+    }
+
+@router.get("/user/profile")
+async def get_profile(user: dict = Depends(get_current_user)):
+    """Get current user profile"""
+    user_data = await db.users.find_one({"email": user["email"]})
+    
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "email": user_data["email"],
+        "name": user_data["name"],
+        "role": user_data["role"],
+        "phone_number": user_data.get("phone_number"),
+        "address": user_data.get("address"),
+        "city": user_data.get("city"),
+        "state": user_data.get("state"),
+        "pincode": user_data.get("pincode")
+    }
 
 @router.get("/auth/google/callback")
 async def google_callback(code: str):

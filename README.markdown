@@ -277,3 +277,6 @@ See `docs/api_documentation.md` for detailed API documentation.
 
 ## License
 This project is for educational purposes and not licensed for commercial use.
+
+
+### uvicorn app.main:app --reload

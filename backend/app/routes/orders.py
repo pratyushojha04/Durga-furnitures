@@ -22,11 +22,19 @@ class OrderRequest(BaseModel):
 async def create_order(order: OrderRequest, user: dict = Depends(get_current_user)):
     user_data = await db.users.find_one({"email": user["email"]})
     if not user_data or not user_data.get("phone_number"):
-        raise HTTPException(status_code=400, detail="Phone number is required before placing an order.")
+        raise HTTPException(status_code=400, detail="Phone number and address are required before placing an order.")
 
     user_email = user_data["email"]
+    user_name = user_data.get("name", "N/A")
     phone_number = user_data["phone_number"]
+    address = user_data.get("address", "N/A")
+    city = user_data.get("city", "N/A")
+    state = user_data.get("state", "N/A")
+    pincode = user_data.get("pincode", "N/A")
+    
     order_details = []
+    total_amount = 0
+    
     for item in order.items:
         # Convert string product_id to ObjectId for MongoDB query
         try:
@@ -40,12 +48,24 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         if product["stock"] < item.quantity:
             raise HTTPException(status_code=400, detail=f"Product {item.product_id} unavailable (insufficient stock: {product['stock']})")
         
-        # Create order
+        item_total = product['price'] * item.quantity
+        total_amount += item_total
+        
+        # Create order with enhanced details
         order_data = {
             "product_id": product_oid,  # Store as ObjectId
+            "product_name": product['name'],
+            "product_category": product['category'],
+            "product_price": product['price'],
             "user_email": user_email,
+            "user_name": user_name,
             "phone_number": phone_number,
+            "delivery_address": address,
+            "city": city,
+            "state": state,
+            "pincode": pincode,
             "quantity": item.quantity,
+            "item_total": item_total,
             "status": "purchased"
         }
         await db.orders.insert_one(order_data)
@@ -57,11 +77,16 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         )
         
         # Prepare email details
-        order_details.append(f"Product: {product['name']}, Quantity: {item.quantity}, Price: {product['price']}")
+        order_details.append({
+            "name": product['name'],
+            "category": product['category'],
+            "quantity": item.quantity,
+            "price": product['price'],
+            "total": item_total
+        })
     
-    # Send email
-    email_body = "\n".join(order_details)
-    send_order_email(user_email, phone_number, email_body)
+    # Send email with enhanced details
+    send_order_email(user_email, user_name, phone_number, address, city, state, pincode, order_details, total_amount)
     
     return {"status": "ordered"}
 
@@ -91,13 +116,24 @@ async def get_my_orders(user: dict = Depends(get_current_user)):
 @router.get("/orders")
 async def get_orders(user: dict = Depends(get_admin_user)):
     orders = await db.orders.find().to_list(100)
-    # Convert ObjectId to string for JSON serialization
+    # Convert ObjectId to string for JSON serialization and ensure all fields are present
     orders_serializable = []
     for order in orders:
         order['_id'] = str(order['_id'])
         order['product_id'] = str(order['product_id'])
-        if 'phone_number' in order:
-            order['phone_number'] = str(order['phone_number'])
+        
+        # Ensure all fields are present with defaults
+        order['product_name'] = order.get('product_name', 'N/A')
+        order['product_category'] = order.get('product_category', 'N/A')
+        order['product_price'] = order.get('product_price', 0)
+        order['user_name'] = order.get('user_name', 'N/A')
+        order['phone_number'] = str(order.get('phone_number', 'N/A'))
+        order['delivery_address'] = order.get('delivery_address', 'N/A')
+        order['city'] = order.get('city', 'N/A')
+        order['state'] = order.get('state', 'N/A')
+        order['pincode'] = order.get('pincode', 'N/A')
+        order['item_total'] = order.get('item_total', 0)
+        
         orders_serializable.append(order)
     return orders_serializable
 
@@ -113,10 +149,16 @@ async def process_order(order_id: str, user: dict = Depends(get_admin_user)):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Fetch product details to calculate total_price
-    product = await db.products.find_one({"_id": ObjectId(order['product_id'])})
-    if product:
-        order['total_price'] = product.get('price', 0) * order.get('quantity', 0)
+    # Ensure all fields are present with defaults for backward compatibility
+    order['product_name'] = order.get('product_name', 'N/A')
+    order['product_category'] = order.get('product_category', 'N/A')
+    order['product_price'] = order.get('product_price', 0)
+    order['user_name'] = order.get('user_name', 'N/A')
+    order['delivery_address'] = order.get('delivery_address', 'N/A')
+    order['city'] = order.get('city', 'N/A')
+    order['state'] = order.get('state', 'N/A')
+    order['pincode'] = order.get('pincode', 'N/A')
+    order['item_total'] = order.get('item_total', order.get('product_price', 0) * order.get('quantity', 0))
 
     try:
         print(f"Sending processed order email to {order['user_email']}...")

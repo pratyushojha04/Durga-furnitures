@@ -265,20 +265,52 @@ function Admin() {
           {orders.length === 0 ? (
             <p className="text-center">No orders have been placed yet.</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {orders.map(order => (
-                <div key={order._id} className="p-4 bg-gray-800 rounded-lg border border-wood-accent">
-                  <p className="text-sm font-semibold">Order ID: {order._id}</p>
-                  <p className="text-sm">Customer Email: {order.user_email}</p>
-                  {order.phone_number && <p className="text-sm">Phone: {order.phone_number}</p>}
-                  <p className="text-sm">Product ID: {order.product_id}</p>
-                  <p className="text-sm">Quantity: {order.quantity}</p>
-                  <p className="text-sm">Status: <span className="capitalize">{order.status}</span></p>
+                <div key={order._id} className="p-6 bg-gray-800 rounded-lg border border-wood-accent shadow-lg">
+                  {/* Order Header */}
+                  <div className="border-b border-wood-accent pb-3 mb-4">
+                    <p className="text-lg font-bold text-wood-accent">Order ID: {order._id}</p>
+                    <p className="text-sm text-gray-400">Status: <span className="capitalize text-yellow-400">{order.status}</span></p>
+                  </div>
+
+                  {/* Customer Information */}
+                  <div className="mb-4">
+                    <h4 className="text-md font-semibold text-wood-accent mb-2">Customer Information</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <p><span className="font-semibold">Name:</span> {order.user_name || 'N/A'}</p>
+                      <p><span className="font-semibold">Email:</span> {order.user_email}</p>
+                      <p><span className="font-semibold">Phone:</span> {order.phone_number || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {/* Product Information */}
+                  <div className="mb-4">
+                    <h4 className="text-md font-semibold text-wood-accent mb-2">Product Details</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                      <p><span className="font-semibold">Product:</span> {order.product_name || 'N/A'}</p>
+                      <p><span className="font-semibold">Category:</span> {order.product_category || 'N/A'}</p>
+                      <p><span className="font-semibold">Price per Unit:</span> ₹{order.product_price ? order.product_price.toFixed(2) : '0.00'}</p>
+                      <p><span className="font-semibold">Quantity:</span> {order.quantity}</p>
+                      <p className="md:col-span-2"><span className="font-semibold text-green-400">Total Amount:</span> <span className="text-green-400 font-bold">₹{order.item_total ? order.item_total.toFixed(2) : '0.00'}</span></p>
+                    </div>
+                  </div>
+
+                  {/* Delivery Information */}
+                  <div className="mb-4">
+                    <h4 className="text-md font-semibold text-wood-accent mb-2">Delivery Address</h4>
+                    <div className="text-sm space-y-1">
+                      <p>{order.delivery_address || 'N/A'}</p>
+                      <p>{order.city || 'N/A'}, {order.state || 'N/A'} - {order.pincode || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
                   <button
                     onClick={() => handleProcessOrder(order._id)}
-                    className="mt-2 w-full bg-blue-600 text-white py-1 rounded-lg hover:bg-blue-700 transition"
+                    className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
                   >
-                    Mark as Processed
+                    Mark as Processed & Send Email
                   </button>
                 </div>
               ))}
