@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+#from fastapi.staticfiles import StaticFiles
 from app.routes import auth, products, orders
 from app.database import init_db, ping_db
 import asyncio
@@ -8,7 +8,7 @@ import asyncio
 app = FastAPI()
 
 # Serve static files (images)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+#app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS configuration
 app.add_middleware(
