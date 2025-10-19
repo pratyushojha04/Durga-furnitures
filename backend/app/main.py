@@ -23,12 +23,16 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(products.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup tasks
     await ping_db()
     await init_db()
+    yield
+    # Shutdown tasks (optional, add if needed)
+    print("Application shutting down")
 
-
+    
 if __name__ == "__main__":
     import uvicorn
     import os
