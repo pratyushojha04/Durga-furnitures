@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth, products, orders
 from app.database import init_db, ping_db
 import asyncio
-
+from contextlib import asynccontextmanager
 app = FastAPI()
 
 # Serve static files (images)
@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
     # Shutdown tasks (optional, add if needed)
     print("Application shutting down")
 
-    
+
 if __name__ == "__main__":
     import uvicorn
     import os
