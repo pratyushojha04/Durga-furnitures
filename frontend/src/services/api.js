@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://durga-furnitures-1.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://durga-furnitures-1.onrender.com/api',
 });
 
 api.interceptors.request.use((config) => {
