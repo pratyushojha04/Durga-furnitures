@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+#from fastapi.staticfiles import StaticFiles
 from app.routes import auth, products, orders
 from app.database import init_db, ping_db
 import asyncio
@@ -8,7 +8,7 @@ import asyncio
 app = FastAPI()
 
 # Serve static files (images)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+#app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # CORS configuration
 app.add_middleware(
@@ -27,3 +27,10 @@ app.include_router(orders.router, prefix="/api")
 async def startup_event():
     await ping_db()
     await init_db()
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 10000))  # Default to 10000 if PORT not set
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)  # Disable reload in production
