@@ -26,25 +26,56 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
 
     user_email = user_data["email"]
     phone_number = user_data["phone_number"]
-    order_details = []
-    total_amount = 0
+    
+    # First pass: Validate all items and collect unavailable ones
+    unavailable_items = []
+    validated_items = []
     
     for item in order.items:
         # Convert string product_id to ObjectId for MongoDB query
         try:
             product_oid = ObjectId(item.product_id)
         except Exception:
-            raise HTTPException(status_code=400, detail=f"Invalid product ID: {item.product_id}")
+            unavailable_items.append(f"Product ID {item.product_id}: Invalid ID format")
+            continue
         
         product = await db.products.find_one({"_id": product_oid})
         if not product:
-            raise HTTPException(status_code=400, detail=f"Product {item.product_id} not found")
+            unavailable_items.append(f"Product ID {item.product_id}: Not found")
+            continue
         if product["stock"] < item.quantity:
-            raise HTTPException(status_code=400, detail=f"Product {item.product_id} unavailable (insufficient stock: {product['stock']})")
+            unavailable_items.append(f"Product ID {item.product_id} ({product.get('name', 'Unknown')}): Insufficient stock (available: {product['stock']}, requested: {item.quantity})")
+            continue
+        
+        # Item is valid
+        validated_items.append({
+            "item": item,
+            "product_oid": product_oid,
+            "product": product
+        })
+    
+    # If any items are unavailable, return error with details
+    if unavailable_items:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Some items are unavailable",
+                "unavailable": unavailable_items
+            }
+        )
+    
+    # Second pass: Process all validated items
+    order_details = []
+    total_amount = 0
+    
+    for validated in validated_items:
+        item = validated["item"]
+        product_oid = validated["product_oid"]
+        product = validated["product"]
         
         # Create order
         order_data = {
-            "product_id": product_oid,  # Store as ObjectId
+            "product_id": product_oid,
             "user_email": user_email,
             "phone_number": phone_number,
             "quantity": item.quantity,
@@ -68,7 +99,7 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
     email_body += f"\n\n{'='*40}\nGRAND TOTAL: ₹{total_amount:.2f}\n{'='*40}"
     send_order_email(user_email, phone_number, email_body)
     
-    return {"status": "ordered"}
+    return {"status": "ordered", "message": "Order placed successfully!"}
 
 @router.get("/orders/my-orders")
 async def get_my_orders(user: dict = Depends(get_current_user)):

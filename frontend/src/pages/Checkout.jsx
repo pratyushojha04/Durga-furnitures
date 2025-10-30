@@ -194,23 +194,37 @@ function Checkout() {
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       console.error('Order error:', err);
-      if (err.response?.status === 400 && err.response.data.unavailable) {
-        const unavailableMsg = err.response.data.unavailable.join('; ');
-        const processedMsg = err.response.data.processed ? ' (some items processed)' : '';
-        setError(`${unavailableMsg}${processedMsg}. Unavailable items removed from cart.`);
-        const unavailableIds = err.response.data.unavailable.map(msg => {
-          const match = msg.match(/Product ID (\w+)/);
+      if (err.response?.status === 400 && err.response.data?.unavailable) {
+        // Handle new format: { message: string, unavailable: string[] }
+        const unavailableList = err.response.data.unavailable;
+        const unavailableMsg = unavailableList.join('\n• ');
+        setError(`Some items are unavailable:\n• ${unavailableMsg}\n\nUnavailable items have been removed from your cart.`);
+        
+        // Extract product IDs from error messages and remove them from cart
+        const unavailableIds = unavailableList.map(msg => {
+          const match = msg.match(/Product ID ([a-f0-9]+)/);
           return match ? match[1] : null;
         }).filter(id => id);
+        
         setLocalCart(prevCart => prevCart.filter(item => !unavailableIds.includes(item.product_id)));
         setCart(prevCart => prevCart.filter(item => !unavailableIds.includes(item.product_id)));
       } else {
-        const errorMessage = Array.isArray(err.response?.data)
-          ? err.response.data.map(e => `${e.loc.join('.')}: ${e.msg}`).join('; ')
-          : err.response?.data?.detail || err.response?.data?.message || err.message || 'Failed to place order. Please try again.';
+        // Handle other error formats
+        let errorMessage = 'Failed to place order. Please try again.';
+        if (typeof err.response?.data?.detail === 'object' && err.response.data.detail?.message) {
+          errorMessage = err.response.data.detail.message;
+        } else if (typeof err.response?.data?.detail === 'string') {
+          errorMessage = err.response.data.detail;
+        } else if (err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (Array.isArray(err.response?.data)) {
+          errorMessage = err.response.data.map(e => `${e.loc.join('.')}: ${e.msg}`).join('; ');
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
         setError(errorMessage);
       }
-      setTimeout(() => setError(''), 5000);
+      setTimeout(() => setError(''), 10000);
     } finally {
       setLoading(false);
     }
@@ -229,11 +243,11 @@ function Checkout() {
       <div className="max-w-screen-xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">Checkout</h2>
         {error && (
-          <div className="bg-red-600 text-white p-4 rounded-lg mb-6 text-center text-sm sm:text-base">
-            {error}
+          <div className="bg-red-600 text-white p-4 rounded-lg mb-6 text-left text-sm sm:text-base">
+            <div className="whitespace-pre-line">{error}</div>
             <button
               onClick={() => setError('')}
-              className="ml-4 text-xs sm:text-sm underline"
+              className="mt-2 text-xs sm:text-sm underline block"
             >
               Dismiss
             </button>
