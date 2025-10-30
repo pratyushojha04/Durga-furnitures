@@ -136,7 +136,11 @@ function Checkout() {
 
   // Initialize local cart from location.state or context (only once on mount)
   useEffect(() => {
-    setLocalCart(location.state?.cart || cart);
+    const initialCart = location.state?.cart || cart;
+    console.log('=== CHECKOUT INITIALIZED ===');
+    console.log('Cart items:', initialCart.length);
+    console.log('Cart contents:', initialCart);
+    setLocalCart(initialCart);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleQuantityChange = (productId, change) => {
@@ -188,12 +192,21 @@ function Checkout() {
         })),
       };
       
+      console.log('=== PLACING ORDER ===');
+      console.log('Order request:', JSON.stringify(orderRequest, null, 2));
+      console.log('Number of items:', orderRequest.items.length);
+      
       const response = await api.post('/api/orders', orderRequest);
+      console.log('Order response:', response.data);
       setSuccess(response.data.message || 'Order placed successfully!');
       setCart([]);
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      console.error('Order error:', err);
+      console.error('=== ORDER ERROR ===');
+      console.error('Error:', err);
+      console.error('Response status:', err.response?.status);
+      console.error('Response data:', err.response?.data);
+      
       if (err.response?.status === 400 && err.response.data?.unavailable) {
         // Handle new format: { message: string, unavailable: string[] }
         const unavailableList = err.response.data.unavailable;
@@ -202,9 +215,11 @@ function Checkout() {
         
         // Extract product IDs from error messages and remove them from cart
         const unavailableIds = unavailableList.map(msg => {
-          const match = msg.match(/Product ID ([a-f0-9]+)/);
+          const match = msg.match(/Product ID ([a-zA-Z0-9]+)/);
           return match ? match[1] : null;
         }).filter(id => id);
+        
+        console.log('Unavailable product IDs:', unavailableIds);
         
         setLocalCart(prevCart => prevCart.filter(item => !unavailableIds.includes(item.product_id)));
         setCart(prevCart => prevCart.filter(item => !unavailableIds.includes(item.product_id)));

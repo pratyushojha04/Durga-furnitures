@@ -20,10 +20,23 @@ class OrderRequest(BaseModel):
 
 @router.post("/orders")
 async def create_order(order: OrderRequest, user: dict = Depends(get_current_user)):
+    # Debug logging
+    print(f"\n=== ORDER REQUEST DEBUG ===")
+    print(f"User email: {user['email']}")
+    print(f"Number of items: {len(order.items)}")
+    for idx, item in enumerate(order.items):
+        print(f"  Item {idx}: product_id={item.product_id}, quantity={item.quantity}")
+    
     user_data = await db.users.find_one({"email": user["email"]})
-    if not user_data or not user_data.get("phone_number"):
+    if not user_data:
+        print(f"ERROR: User data not found for {user['email']}")
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    if not user_data.get("phone_number"):
+        print(f"ERROR: Phone number missing for user {user['email']}")
         raise HTTPException(status_code=400, detail="Phone number is required before placing an order.")
-
+    
+    print(f"User phone: {user_data.get('phone_number')}")
     user_email = user_data["email"]
     phone_number = user_data["phone_number"]
     
@@ -35,19 +48,26 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         # Convert string product_id to ObjectId for MongoDB query
         try:
             product_oid = ObjectId(item.product_id)
-        except Exception:
+        except Exception as e:
+            print(f"ERROR: Invalid product_id format: {item.product_id} - {e}")
             unavailable_items.append(f"Product ID {item.product_id}: Invalid ID format")
             continue
         
         product = await db.products.find_one({"_id": product_oid})
         if not product:
+            print(f"ERROR: Product not found: {item.product_id}")
             unavailable_items.append(f"Product ID {item.product_id}: Not found")
             continue
+        
+        print(f"Product found: {product.get('name')} - Stock: {product['stock']}, Requested: {item.quantity}")
+        
         if product["stock"] < item.quantity:
+            print(f"ERROR: Insufficient stock for {product.get('name')}")
             unavailable_items.append(f"Product ID {item.product_id} ({product.get('name', 'Unknown')}): Insufficient stock (available: {product['stock']}, requested: {item.quantity})")
             continue
         
         # Item is valid
+        print(f"Item validated successfully: {product.get('name')}")
         validated_items.append({
             "item": item,
             "product_oid": product_oid,
@@ -56,6 +76,10 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
     
     # If any items are unavailable, return error with details
     if unavailable_items:
+        print(f"\nERROR: Order validation failed. Unavailable items:")
+        for item_error in unavailable_items:
+            print(f"  - {item_error}")
+        print("=== END ORDER REQUEST DEBUG ===\n")
         raise HTTPException(
             status_code=400,
             detail={
@@ -98,6 +122,10 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
     email_body = "\n\n".join(order_details)
     email_body += f"\n\n{'='*40}\nGRAND TOTAL: ₹{total_amount:.2f}\n{'='*40}"
     send_order_email(user_email, phone_number, email_body)
+    
+    print(f"SUCCESS: Order placed successfully for {user_email}")
+    print(f"  Total items: {len(validated_items)}, Total amount: ₹{total_amount:.2f}")
+    print("=== END ORDER REQUEST DEBUG ===\n")
     
     return {"status": "ordered", "message": "Order placed successfully!"}
 
