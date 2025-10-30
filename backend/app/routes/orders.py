@@ -27,6 +27,8 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
     user_email = user_data["email"]
     phone_number = user_data["phone_number"]
     order_details = []
+    total_amount = 0
+    
     for item in order.items:
         # Convert string product_id to ObjectId for MongoDB query
         try:
@@ -56,11 +58,14 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
             {"$set": {"stock": product["stock"] - item.quantity}}
         )
         
-        # Prepare email details
-        order_details.append(f"Product: {product['name']}, Quantity: {item.quantity}, Price: {product['price']}")
+        # Prepare email details with subtotal
+        subtotal = product['price'] * item.quantity
+        total_amount += subtotal
+        order_details.append(f"Product: {product['name']}\n  Quantity: {item.quantity}\n  Price per unit: ₹{product['price']:.2f}\n  Subtotal: ₹{subtotal:.2f}")
     
-    # Send email
-    email_body = "\n".join(order_details)
+    # Send email with total
+    email_body = "\n\n".join(order_details)
+    email_body += f"\n\n{'='*40}\nGRAND TOTAL: ₹{total_amount:.2f}\n{'='*40}"
     send_order_email(user_email, phone_number, email_body)
     
     return {"status": "ordered"}
@@ -91,15 +96,24 @@ async def get_my_orders(user: dict = Depends(get_current_user)):
 @router.get("/orders")
 async def get_orders(user: dict = Depends(get_admin_user)):
     orders = await db.orders.find().to_list(100)
-    # Convert ObjectId to string for JSON serialization
-    orders_serializable = []
+    # Convert ObjectId to string and fetch product details
+    orders_with_products = []
     for order in orders:
         order['_id'] = str(order['_id'])
-        order['product_id'] = str(order['product_id'])
+        product_id = order['product_id']
+        order['product_id'] = str(product_id)
+        
+        # Fetch product details
+        product = await db.products.find_one({"_id": product_id})
+        if product:
+            order['product_name'] = product.get('name', 'Unknown')
+            order['product_price'] = product.get('price', 0)
+            order['product_image'] = product.get('image_url', '')
+        
         if 'phone_number' in order:
             order['phone_number'] = str(order['phone_number'])
-        orders_serializable.append(order)
-    return orders_serializable
+        orders_with_products.append(order)
+    return orders_with_products
 
 @router.post("/orders/{order_id}/process")
 async def process_order(order_id: str, user: dict = Depends(get_admin_user)):
@@ -113,10 +127,16 @@ async def process_order(order_id: str, user: dict = Depends(get_admin_user)):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Fetch product details to calculate total_price
+    # Fetch product details to calculate total_price and add product info
     product = await db.products.find_one({"_id": ObjectId(order['product_id'])})
     if product:
+        order['product_name'] = product.get('name', 'Unknown Product')
+        order['unit_price'] = product.get('price', 0)
         order['total_price'] = product.get('price', 0) * order.get('quantity', 0)
+    else:
+        order['product_name'] = 'Unknown Product'
+        order['unit_price'] = 0
+        order['total_price'] = 0
 
     try:
         print(f"Sending processed order email to {order['user_email']}...")

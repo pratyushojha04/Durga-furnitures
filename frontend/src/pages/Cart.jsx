@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import NavAuthenticated from '../components/NavAuthenticated';
+import { Plus, Minus } from 'lucide-react';
 
 function Cart() {
-  const { cart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const navigate = useNavigate();
 
   const handleProceedToCheckout = () => {
@@ -38,7 +39,26 @@ function Cart() {
                   <div>
                     <h3 className="text-base sm:text-lg font-semibold text-text-light">{item.name}</h3>
                     <p className="text-sm text-gray-400">Price: ₹{item.price.toFixed(2)}</p>
-                    <p className="text-sm text-gray-400">Quantity: {item.quantity}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-sm text-gray-400">Quantity:</span>
+                      <div className="flex items-center gap-2 bg-gray-700 rounded-lg px-2 py-1">
+                        <button
+                          onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                          className="text-wood-accent hover:text-wood-accent-dark transition p-1"
+                          aria-label="Decrease quantity"
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <span className="text-text-light font-semibold min-w-[2rem] text-center">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                          className="text-wood-accent hover:text-wood-accent-dark transition p-1"
+                          aria-label="Increase quantity"
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">

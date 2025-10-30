@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 import os
 from dotenv import load_dotenv
+from fastapi import HTTPException
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ def send_order_email(user_email: str, phone_number: str, order_details: str):
     msg = MIMEText(email_body)
     msg["Subject"] = "New Order Notification - Durga Handicrafts"
     msg["From"] = company_email
-    msg["To"] = "opratyush12@gmail.com"  # Hardcoded admin email
+    msg["To"] = "durgafurniture2412@gmail.com"  # Company email only
 
     # SMTP configuration (Gmail)
     try:
@@ -52,3 +53,42 @@ def send_processed_order_email(user_email: str, order_details: dict):
         server.starttls()
         server.login(company_email, email_password)
         server.send_message(msg)
+
+def send_contact_email(name: str, email: str, phone: str, subject: str, message: str):
+    """Send contact form submission to admin email."""
+    company_email = os.getenv("EMAIL_USER")
+    email_password = os.getenv("EMAIL_PASSWORD")
+    admin_email = os.getenv("ADMIN_EMAIL", "durgafurniture2412@gmail.com")
+    
+    if not company_email or not email_password:
+        raise HTTPException(status_code=500, detail="Email configuration missing")
+
+    # Email content
+    phone_info = f"\nPhone: {phone}" if phone else ""
+    email_body = f"""New Contact Form Submission - Durga Handicrafts
+
+From: {name}
+Email: {email}{phone_info}
+Subject: {subject}
+
+Message:
+{message}
+
+---
+This is an automated message from the Durga Handicrafts contact form.
+"""
+    
+    msg = MIMEText(email_body)
+    msg["Subject"] = f"Contact Form: {subject}"
+    msg["From"] = company_email
+    msg["To"] = admin_email
+    msg["Reply-To"] = email  # Allow admin to reply directly to customer
+
+    # SMTP configuration (Gmail)
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(company_email, email_password)
+            server.send_message(msg)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")

@@ -18,7 +18,7 @@ function Admin() {
 
   useEffect(() => {
     api
-      .get('/products')
+      .get('/api/products')
       .then(res => {
         setProducts(res.data);
       })
@@ -28,7 +28,7 @@ function Admin() {
         setTimeout(() => setError(''), 3000);
       });
 
-    api.get('/orders')
+    api.get('/api/orders')
       .then(res => {
         setOrders(res.data);
       })
@@ -38,7 +38,7 @@ function Admin() {
         setTimeout(() => setError(''), 3000);
       });
 
-    api.get('/orders/reports')
+    api.get('/api/orders/reports')
       .then(res => {
         setReports(res.data);
       })
@@ -72,12 +72,12 @@ function Admin() {
         formData.append('file', newProduct.image);
       }
 
-      await api.post('/products', formData, {
+      await api.post('/api/products', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       // Refetch products to get the latest list
-      const res = await api.get('/products');
+      const res = await api.get('/api/products');
       setProducts(res.data);
       
       setSuccess('Product added successfully!');
@@ -95,7 +95,7 @@ function Admin() {
   const handleRemoveProduct = async (productId) => {
     if (window.confirm('Are you sure you want to remove this product?')) {
       try {
-        await api.delete(`/products/${productId}`);
+        await api.delete(`/api/products/${productId}`);
         setProducts(products.filter(p => p._id !== productId));
         setSuccess('Product removed successfully!');
         setTimeout(() => setSuccess(''), 3000);
@@ -110,10 +110,10 @@ function Admin() {
   const handleProcessOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to mark this order as processed?')) {
       try {
-        await api.post(`/orders/${orderId}/process`);
+        await api.post(`/api/orders/${orderId}/process`);
         setOrders(orders.filter(o => o._id !== orderId));
         // Refresh reports list
-        const res = await api.get('/orders/reports');
+        const res = await api.get('/api/orders/reports');
         setReports(res.data);
         setSuccess('Order processed successfully!');
         setTimeout(() => setSuccess(''), 3000);
@@ -127,7 +127,7 @@ function Admin() {
 
   const handleDownloadReport = async (filename) => {
     try {
-      const response = await api.get(`/orders/reports/${filename}`, {
+      const response = await api.get(`/api/orders/reports/${filename}`, {
         responseType: 'blob', // Important for file downloads
       });
       // Create a URL for the blob
@@ -271,8 +271,10 @@ function Admin() {
                   <p className="text-sm font-semibold">Order ID: {order._id}</p>
                   <p className="text-sm">Customer Email: {order.user_email}</p>
                   {order.phone_number && <p className="text-sm">Phone: {order.phone_number}</p>}
+                  <p className="text-sm font-semibold text-wood-accent">Product: {order.product_name || 'Unknown Product'}</p>
                   <p className="text-sm">Product ID: {order.product_id}</p>
                   <p className="text-sm">Quantity: {order.quantity}</p>
+                  {order.product_price && <p className="text-sm">Price: ₹{order.product_price.toFixed(2)}</p>}
                   <p className="text-sm">Status: <span className="capitalize">{order.status}</span></p>
                   <button
                     onClick={() => handleProcessOrder(order._id)}

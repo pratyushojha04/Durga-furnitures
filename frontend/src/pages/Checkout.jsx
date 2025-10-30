@@ -115,7 +115,7 @@
 
 // export default Checkout;
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
@@ -125,26 +125,60 @@ function Checkout() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [localCart, setLocalCart] = useState([]);
   const { cart, setCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
-  const cartData = location.state?.cart || cart;
+
+  // Initialize local cart from location.state or context (only once on mount)
+  useEffect(() => {
+    setLocalCart(location.state?.cart || cart);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleQuantityChange = (productId, change) => {
+    setLocalCart(prevCart => 
+      prevCart.map(item => {
+        if (item.product_id === productId) {
+          const newQuantity = item.quantity + change;
+          return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+        }
+        return item;
+      })
+    );
+    // Also update context cart
+    setCart(prevCart => 
+      prevCart.map(item => {
+        if (item.product_id === productId) {
+          const newQuantity = item.quantity + change;
+          return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleRemoveItem = (productId) => {
+    setLocalCart(prevCart => prevCart.filter(item => item.product_id !== productId));
+    setCart(prevCart => prevCart.filter(item => item.product_id !== productId));
+  };
 
   const handlePlaceOrder = async () => {
     setLoading(true);
     setError('');
     setSuccess('');
     try {
-      if (cartData.length === 0) {
+      if (localCart.length === 0) {
         throw new Error('Cart is empty.');
       }
+      
       const orderRequest = {
-        items: cartData.map(item => ({
+        items: localCart.map(item => ({
           product_id: item.product_id,
           quantity: item.quantity,
         })),
       };
-      const response = await api.post('/orders', orderRequest);
+      
+      const response = await api.post('/api/orders', orderRequest);
       setSuccess(response.data.message || 'Order placed successfully!');
       setCart([]);
       setTimeout(() => navigate('/dashboard'), 2000);
@@ -158,6 +192,7 @@ function Checkout() {
           const match = msg.match(/Product ID (\w+)/);
           return match ? match[1] : null;
         }).filter(id => id);
+        setLocalCart(prevCart => prevCart.filter(item => !unavailableIds.includes(item.product_id)));
         setCart(prevCart => prevCart.filter(item => !unavailableIds.includes(item.product_id)));
       } else {
         const errorMessage = Array.isArray(err.response?.data)
@@ -200,16 +235,16 @@ function Checkout() {
         )}
         <div className="bg-gray-900 p-4 sm:p-6 rounded-lg shadow-md border border-wood-accent">
           <h3 className="text-lg sm:text-xl font-semibold mb-4">Order Summary</h3>
-          {cartData.length === 0 ? (
+          {localCart.length === 0 ? (
             <p className="text-center text-sm sm:text-base">No items in cart.</p>
           ) : (
             <div className="space-y-4">
-              {cartData.map(item => (
+              {localCart.map(item => (
                 <div
                   key={item.product_id}
                   className="p-4 bg-gray-800 rounded-lg border border-wood-accent flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-1">
                     <img
                       src={item.image_url || '/fallback-image.jpg'}
                       alt={item.name}
@@ -220,19 +255,47 @@ function Checkout() {
                         e.target.onerror = null; // Prevent infinite retry loop
                       }}
                     />
-                    <div>
+                    <div className="flex-1">
                       <h4 className="text-base sm:text-md font-semibold text-text-light">{item.name}</h4>
                       <p className="text-sm text-gray-400">Price: ₹{item.price.toFixed(2)}</p>
-                      <p className="text-sm text-gray-400">Quantity: {item.quantity}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-sm text-gray-400">Quantity:</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleQuantityChange(item.product_id, -1)}
+                            disabled={loading}
+                            className="w-8 h-8 bg-wood-accent text-dark-bg rounded-md hover:bg-opacity-80 transition-colors font-bold disabled:opacity-50"
+                          >
+                            -
+                          </button>
+                          <span className="text-text-light font-semibold w-8 text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => handleQuantityChange(item.product_id, 1)}
+                            disabled={loading}
+                            className="w-8 h-8 bg-wood-accent text-dark-bg rounded-md hover:bg-opacity-80 transition-colors font-bold disabled:opacity-50"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-sm sm:text-base font-semibold text-text-light">
-                    Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
-                  </p>
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                    <p className="text-sm sm:text-base font-semibold text-text-light">
+                      Subtotal: ₹{(item.price * item.quantity).toFixed(2)}
+                    </p>
+                    <button
+                      onClick={() => handleRemoveItem(item.product_id)}
+                      disabled={loading}
+                      className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
               <p className="text-base sm:text-lg font-semibold text-right text-text-light">
-                Total: ₹{cartData.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                Total: ₹{localCart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
               </p>
               <button
                 onClick={handlePlaceOrder}

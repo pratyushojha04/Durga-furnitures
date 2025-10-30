@@ -86,12 +86,12 @@ function Footer() {
               >
                 Shop
               </Link>
-              <a
-                href="mailto:durgafurniture2412@gmail.com"
+              <Link 
+                to="/contact" 
                 className="hover:text-wood-accent transition-colors duration-200 hover:translate-x-1 transform inline-block"
               >
                 Contact
-              </a>
+              </Link>
             </div>
           </div>
 

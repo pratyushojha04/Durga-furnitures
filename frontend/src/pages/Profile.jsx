@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Shield, Package, Calendar } from 'lucide-react';
+import { User, Mail, Phone, Shield, Package } from 'lucide-react';
 import NavAuthenticated from '../components/NavAuthenticated';
 import api from '../services/api';
 
@@ -20,7 +20,7 @@ function Profile() {
 
   const fetchOrders = async () => {
     try {
-      const response = await api.get('/orders/my-orders');
+      const response = await api.get('/api/orders/my-orders');
       setOrders(response.data);
     } catch (err) {
       console.error('Error fetching orders:', err);

@@ -1,6 +1,9 @@
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Shield } from 'lucide-react';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import Hero from '../components/Hero';
 import FeaturedProducts from '../components/FeaturedProducts';
 import Testimonials from '../components/Testimonials';
@@ -10,14 +13,19 @@ import krishnaImage from '../assets/krishna.png';
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch featured products (limit to 4 for landing page)
     api
-      .get('/products?limit=4')
+      .get('/api/products?limit=4')
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
   }, []);
+
+  // Check if user is admin
+  const isAdmin = user && user.role === 'admin';
 
   return (
     <div
@@ -33,6 +41,20 @@ function Home() {
     >
       {/* Navbar */}
       <Navbar />
+
+      {/* Admin Quick Access Button - Floating */}
+      {isAdmin && (
+        <button
+          onClick={() => navigate('/admin')}
+          className="fixed bottom-6 right-6 bg-wood-accent hover:bg-wood-accent-dark text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 z-50 flex items-center gap-2 group"
+          title="Admin Dashboard"
+        >
+          <Shield size={24} />
+          <span className="hidden group-hover:inline-block text-sm font-semibold whitespace-nowrap">
+            Admin Panel
+          </span>
+        </button>
+      )}
 
       {/* Hero Section */}
       <Hero />

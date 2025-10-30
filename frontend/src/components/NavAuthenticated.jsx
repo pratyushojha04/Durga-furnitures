@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Menu, X, User, Home, Info, ShoppingCart, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 function NavAuthenticated() {
   const navigate = useNavigate();
   const { cart } = useCart();
-  const [isOpen, setIsOpen] = useState(false); // <-- state to toggle menu
+  const { logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout(); // Use AuthContext logout to clear user state
+    // Cart is saved in localStorage per user, so it persists after logout
     console.log('User logged out');
     navigate('/');
   };

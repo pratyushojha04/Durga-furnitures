@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 #from fastapi.staticfiles import StaticFiles
-from app.routes import auth, products, orders
+from app.routes import auth, products, orders, contact
 from app.database import init_db, ping_db
 import asyncio
 from contextlib import asynccontextmanager
@@ -13,15 +13,17 @@ app = FastAPI()
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://durga-furnitures-2.onrender.com/","http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  # Frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
-app.include_router(auth.router, prefix="/api")
+app.include_router(auth.router)
 app.include_router(products.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
+app.include_router(contact.router, prefix="/api")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,5 +38,5 @@ async def lifespan(app: FastAPI):
 if __name__ == "__main__":
     import uvicorn
     import os
-    port = int(os.environ.get("PORT", 10000))  # Default to 10000 if PORT not set
+    port = int(os.environ.get("PORT", 8000))  # Default to 10000 if PORT not set
     uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)  # Disable reload in production

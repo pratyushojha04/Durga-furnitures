@@ -15,7 +15,9 @@ function PhoneNumberModal({ onSuccess }) {
       await api.post('/user/phone', { phone_number: phoneNumber });
       // Update user in localStorage
       const user = JSON.parse(localStorage.getItem('user'));
+      // Handle both phone and phone_number for backward compatibility
       user.phone_number = phoneNumber;
+      user.phone = phoneNumber; // Keep both for backward compatibility
       localStorage.setItem('user', JSON.stringify(user));
       onSuccess();
     } catch (err) {
