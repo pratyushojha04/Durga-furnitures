@@ -150,8 +150,13 @@ function Checkout() {
       try {
         // Fetch current stock levels for all cart items
         const productIds = initialCart.map(item => item.product_id);
-        const response = await api.post('/api/products/validate-cart', productIds);
-        const currentProducts = response.data;
+        // Temporarily disabled until backend is redeployed with the new endpoint
+        // const response = await api.post('/api/products/validate-cart', productIds);
+        // const currentProducts = response.data;
+        
+        // For now, just use the cart as-is without validation
+        setLocalCart(initialCart);
+        return;
         
         // Create a map of product_id to current stock
         const stockMap = {};
