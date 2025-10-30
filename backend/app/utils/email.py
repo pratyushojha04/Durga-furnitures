@@ -12,7 +12,7 @@ def send_order_email(user_email: str, phone_number: str, order_details: str):
     email_password = os.getenv("EMAIL_PASSWORD")
     
     if not company_email or not email_password:
-        raise HTTPException(status_code=500, detail="Email configuration missing")
+        raise Exception("Email configuration missing")
 
     # Email content
     email_body = f"New Order by: {user_email}\nPhone: {phone_number}\n\nOrder Details:\n{order_details}"
@@ -22,13 +22,11 @@ def send_order_email(user_email: str, phone_number: str, order_details: str):
     msg["To"] = "durgafurniture2412@gmail.com"  # Company email only
 
     # SMTP configuration (Gmail)
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()  # Enable TLS
-            server.login(company_email, email_password)
-            server.send_message(msg)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+    # Raise regular Exception instead of HTTPException so caller can handle it
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()  # Enable TLS
+        server.login(company_email, email_password)
+        server.send_message(msg)
 
 def send_processed_order_email(user_email: str, order_details: dict):
     """Send an email to the user notifying them that their order has been processed."""

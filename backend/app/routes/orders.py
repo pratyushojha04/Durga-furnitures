@@ -118,10 +118,15 @@ async def create_order(order: OrderRequest, user: dict = Depends(get_current_use
         total_amount += subtotal
         order_details.append(f"Product: {product['name']}\n  Quantity: {item.quantity}\n  Price per unit: ₹{product['price']:.2f}\n  Subtotal: ₹{subtotal:.2f}")
     
-    # Send email with total
+    # Send email with total (non-blocking - don't fail order if email fails)
     email_body = "\n\n".join(order_details)
     email_body += f"\n\n{'='*40}\nGRAND TOTAL: ₹{total_amount:.2f}\n{'='*40}"
-    send_order_email(user_email, phone_number, email_body)
+    try:
+        send_order_email(user_email, phone_number, email_body)
+        print("Order confirmation email sent successfully")
+    except Exception as e:
+        print(f"WARNING: Failed to send order confirmation email: {e}")
+        # Don't fail the order if email fails - order is already created
     
     print(f"SUCCESS: Order placed successfully for {user_email}")
     print(f"  Total items: {len(validated_items)}, Total amount: ₹{total_amount:.2f}")
