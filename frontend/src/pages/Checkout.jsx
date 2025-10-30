@@ -136,11 +136,81 @@ function Checkout() {
 
   // Initialize local cart from location.state or context (only once on mount)
   useEffect(() => {
-    const initialCart = location.state?.cart || cart;
-    console.log('=== CHECKOUT INITIALIZED ===');
-    console.log('Cart items:', initialCart.length);
-    console.log('Cart contents:', initialCart);
-    setLocalCart(initialCart);
+    const validateAndInitializeCart = async () => {
+      const initialCart = location.state?.cart || cart;
+      console.log('=== CHECKOUT INITIALIZED ===');
+      console.log('Cart items:', initialCart.length);
+      console.log('Cart contents:', initialCart);
+      
+      if (initialCart.length === 0) {
+        setLocalCart([]);
+        return;
+      }
+
+      try {
+        // Fetch current stock levels for all cart items
+        const productIds = initialCart.map(item => item.product_id);
+        const response = await api.post('/api/products/validate-cart', productIds);
+        const currentProducts = response.data;
+        
+        // Create a map of product_id to current stock
+        const stockMap = {};
+        currentProducts.forEach(product => {
+          stockMap[product._id] = product.stock;
+        });
+        
+        // Validate and adjust cart items
+        const validatedCart = [];
+        const removedItems = [];
+        const adjustedItems = [];
+        
+        initialCart.forEach(item => {
+          const currentStock = stockMap[item.product_id];
+          
+          if (currentStock === undefined) {
+            // Product no longer exists
+            removedItems.push(`${item.name} (no longer available)`);
+          } else if (currentStock === 0) {
+            // Product out of stock
+            removedItems.push(`${item.name} (out of stock)`);
+          } else if (currentStock < item.quantity) {
+            // Adjust quantity to available stock
+            adjustedItems.push(`${item.name} (quantity adjusted from ${item.quantity} to ${currentStock})`);
+            validatedCart.push({ ...item, quantity: currentStock });
+          } else {
+            // Item is valid
+            validatedCart.push(item);
+          }
+        });
+        
+        // Show warnings if items were removed or adjusted
+        if (removedItems.length > 0 || adjustedItems.length > 0) {
+          let warningMsg = '';
+          if (removedItems.length > 0) {
+            warningMsg += 'The following items were removed from your cart:\n• ' + removedItems.join('\n• ');
+          }
+          if (adjustedItems.length > 0) {
+            if (warningMsg) warningMsg += '\n\n';
+            warningMsg += 'The following items had their quantities adjusted:\n• ' + adjustedItems.join('\n• ');
+          }
+          setError(warningMsg);
+          setTimeout(() => setError(''), 10000);
+        }
+        
+        setLocalCart(validatedCart);
+        setCart(validatedCart); // Update context cart as well
+        
+        console.log('Cart validated. Valid items:', validatedCart.length);
+      } catch (err) {
+        console.error('Error validating cart:', err);
+        // If validation fails, still show the cart but warn the user
+        setLocalCart(initialCart);
+        setError('Unable to verify stock levels. Some items may be unavailable.');
+        setTimeout(() => setError(''), 5000);
+      }
+    };
+    
+    validateAndInitializeCart();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleQuantityChange = (productId, change) => {

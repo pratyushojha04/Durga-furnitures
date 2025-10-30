@@ -99,3 +99,23 @@ async def get_products(limit: int = 100, productIds: List[str] = None):
         {**product, '_id': str(product['_id'])} for product in products
     ]
     return products_serializable
+
+@router.post("/products/validate-cart")
+async def validate_cart_items(product_ids: List[str]):
+    """
+    Fetch products by IDs without stock filter - used for cart validation.
+    Returns all products regardless of stock level.
+    """
+    try:
+        object_ids = [ObjectId(pid) for pid in product_ids]
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid product ID format")
+    
+    cursor = db.products.find({"_id": {"$in": object_ids}})
+    products = await cursor.to_list(length=len(product_ids))
+    
+    # Convert ObjectId to string for JSON serialization
+    products_serializable = [
+        {**product, '_id': str(product['_id'])} for product in products
+    ]
+    return products_serializable

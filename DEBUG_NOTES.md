@@ -94,3 +94,40 @@ Once the issue is resolved, you can remove the debug logging by:
 - Removing `console.log` statements from frontend
 - Removing `print` statements from backend
 - Or leave them for future debugging (recommended)
+
+---
+
+# Stock Decrement Issue - RESOLVED (Oct 30, 2025)
+
+## Problem
+Users were getting "insufficient stock" errors when trying to place orders, even though they had successfully added items to their cart.
+
+## Root Cause
+1. **Stock is correctly decremented only when orders are placed** (in `backend/app/routes/orders.py` lines 110-114) ✅
+2. **Cart is stored in localStorage** on the frontend - it doesn't sync with real-time stock levels
+3. When a product goes out of stock after being added to cart, the cart still shows it
+4. The `/api/products` endpoint filters out products with `stock <= 0`, but cart items persist in localStorage
+
+## Solution Implemented
+1. **Added new backend endpoint** (`POST /api/products/validate-cart`) that fetches products without stock filtering
+2. **Updated Checkout page** to validate stock levels when the page loads:
+   - Automatically removes out-of-stock items
+   - Adjusts quantities that exceed available stock
+   - Shows clear warnings to users about changes
+   - Updates both local cart and context cart
+
+## Files Modified
+- `backend/app/routes/products.py` - Added `/api/products/validate-cart` endpoint (lines 103-121)
+- `frontend/src/pages/Checkout.jsx` - Added stock validation on page load (lines 138-214)
+
+## How It Works Now
+1. User adds items to cart (stored in localStorage)
+2. When user goes to checkout, the page validates all cart items against current stock
+3. Out-of-stock items are removed automatically
+4. Items with insufficient stock have quantities adjusted to available stock
+5. User sees clear warnings about any changes
+6. Order placement only proceeds with valid, in-stock items
+7. **Stock is decremented ONLY when the order is successfully placed** ✅
+
+## Key Point
+**The cart does NOT decrement stock** - it's purely a frontend feature stored in localStorage. Stock is only decremented on the backend when `POST /api/orders` successfully completes.
