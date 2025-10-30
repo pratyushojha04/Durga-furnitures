@@ -32,25 +32,28 @@ async def add_product(
     name: str = Form(...),
     category: str = Form(...),
     price: float = Form(...),
-    file: UploadFile = File(...),
+    stock: int = Form(1),
+    file: UploadFile = File(None),
     user: dict = Depends(get_admin_user)
 ):
     try:
-        product_data = ProductCreate(name=name, category=category, price=price, stock=1)
+        product_data = ProductCreate(name=name, category=category, price=price, stock=stock)
         
-        # Validate file type
-        if not file.content_type.startswith('image/'):
-            raise HTTPException(status_code=422, detail=[{"loc": ["file"], "msg": "Only image files (JPEG, PNG) are allowed.", "type": "value_error"}])
-        # Validate file size (max 5MB)
-        max_size = 5 * 1024 * 1024  # 5MB in bytes
-        content = await file.read()
-        if len(content) > max_size:
-            raise HTTPException(status_code=422, detail=[{"loc": ["file"], "msg": "File size exceeds 5MB limit.", "type": "value_error"}])
-        
-        # Reset file pointer
-        await file.seek(0)
-        
-        image_url = upload_image(file)
+        image_url = None
+        if file:
+            # Validate file type
+            if not file.content_type.startswith('image/'):
+                raise HTTPException(status_code=422, detail=[{"loc": ["file"], "msg": "Only image files (JPEG, PNG) are allowed.", "type": "value_error"}])
+            # Validate file size (max 5MB)
+            max_size = 5 * 1024 * 1024  # 5MB in bytes
+            content = await file.read()
+            if len(content) > max_size:
+                raise HTTPException(status_code=422, detail=[{"loc": ["file"], "msg": "File size exceeds 5MB limit.", "type": "value_error"}])
+            
+            # Reset file pointer
+            await file.seek(0)
+            
+            image_url = upload_image(file)
         product = Product(
             name=product_data.name,
             category=product_data.category,
