@@ -148,15 +148,15 @@ function Checkout() {
       }
 
       try {
+        // For now, just use the cart as-is without validation
+        // Stock validation will be re-enabled after backend is redeployed
+        setLocalCart(initialCart);
+        
+        /* TEMPORARILY DISABLED - Re-enable after backend deployment
         // Fetch current stock levels for all cart items
         const productIds = initialCart.map(item => item.product_id);
-        // Temporarily disabled until backend is redeployed with the new endpoint
-        // const response = await api.post('/api/products/validate-cart', productIds);
-        // const currentProducts = response.data;
-        
-        // For now, just use the cart as-is without validation
-        setLocalCart(initialCart);
-        return;
+        const response = await api.post('/api/products/validate-cart', productIds);
+        const currentProducts = response.data;
         
         // Create a map of product_id to current stock
         const stockMap = {};
@@ -206,6 +206,7 @@ function Checkout() {
         setCart(validatedCart); // Update context cart as well
         
         console.log('Cart validated. Valid items:', validatedCart.length);
+        */
       } catch (err) {
         console.error('Error validating cart:', err);
         // If validation fails, still show the cart but warn the user
