@@ -119,14 +119,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import NavAuthenticated from '../components/NavAuthenticated';
+import PhoneNumberModal from '../components/PhoneNumberModal';
 
 function Checkout() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [localCart, setLocalCart] = useState([]);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const { cart, setCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -163,6 +167,12 @@ function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
+    // Check if user has phone number
+    if (!user?.phone_number && !user?.phone) {
+      setShowPhoneModal(true);
+      return;
+    }
+    
     setLoading(true);
     setError('');
     setSuccess('');
@@ -206,8 +216,15 @@ function Checkout() {
     }
   };
 
+  const handlePhoneSuccess = () => {
+    setShowPhoneModal(false);
+    // Automatically retry placing order after phone number is added
+    handlePlaceOrder();
+  };
+
   return (
     <div className="min-h-screen bg-dark-bg text-text-light px-4 py-6 font-sans">
+      {showPhoneModal && <PhoneNumberModal onSuccess={handlePhoneSuccess} />}
       <NavAuthenticated />
       <div className="max-w-screen-xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6">Checkout</h2>
