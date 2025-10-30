@@ -4,7 +4,7 @@ from app.models.product import Product
 from app.database import db
 from app.utils.file_upload import upload_image
 from app.utils.auth import get_admin_user
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, ValidationError
 from typing import List
 
 router = APIRouter()
@@ -43,12 +43,12 @@ async def add_product(
         if file:
             # Validate file type
             if not file.content_type.startswith('image/'):
-                raise HTTPException(status_code=422, detail=[{"loc": ["file"], "msg": "Only image files (JPEG, PNG) are allowed.", "type": "value_error"}])
+                raise HTTPException(status_code=422, detail="Only image files (JPEG, PNG) are allowed.")
             # Validate file size (max 5MB)
             max_size = 5 * 1024 * 1024  # 5MB in bytes
             content = await file.read()
             if len(content) > max_size:
-                raise HTTPException(status_code=422, detail=[{"loc": ["file"], "msg": "File size exceeds 5MB limit.", "type": "value_error"}])
+                raise HTTPException(status_code=422, detail="File size exceeds 5MB limit.")
             
             # Reset file pointer
             await file.seek(0)
@@ -63,8 +63,15 @@ async def add_product(
         )
         result = await db.products.insert_one(product.dict())
         return {"status": "added", "product_id": str(result.inserted_id)}
+    except ValidationError as e:
+        # Format validation errors properly
+        errors = []
+        for error in e.errors():
+            field = error['loc'][0] if error['loc'] else 'unknown'
+            errors.append(f"{field}: {error['msg']}")
+        raise HTTPException(status_code=422, detail="; ".join(errors))
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=[{"loc": ["body"], "msg": str(e), "type": "value_error"}])
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add product: {str(e)}")
 
