@@ -19,7 +19,8 @@ try:
     # Shorter selection timeout to surface connectivity issues quickly
     print("Creating MongoDB client...")
     client = AsyncIOMotorClient(mongo_uri, serverSelectionTimeoutMS=5000)
-    db = client.get_database()
+    # Explicitly specify database name - get from URI or use default
+    db = client.get_database("durga_furniture")
     print(f"Connected to MongoDB database: {db.name}")
 except Exception as e:
     print(f"Error connecting to MongoDB: {str(e)}")
