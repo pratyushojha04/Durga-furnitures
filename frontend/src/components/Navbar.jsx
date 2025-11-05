@@ -19,8 +19,13 @@ export default function Navbar() {
     <nav className="bg-dark-bg text-text-light shadow-md">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
         {/* Logo / Brand */}
-        <Link to="/" className="text-xl sm:text-2xl font-bold">
-          Durga Handicrafts
+        <Link to="/" className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+          <img 
+            src="/logo.png" 
+            alt="Durga Handicrafts" 
+            className="h-8 w-auto"
+          />
+          <span className="hidden sm:inline">Durga Handicrafts</span>
         </Link>
 
         {/* Desktop Menu */}
